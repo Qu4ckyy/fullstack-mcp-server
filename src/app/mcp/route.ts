@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   createTodo,
   createTodoSchema,
+  deleteCompletedTodos,
   deleteTodo,
   getTodo,
   listTodos,
@@ -101,6 +102,20 @@ const handler = createMcpHandler((server) => {
         return (await deleteTodo(id))
           ? result({ deleted: true, id })
           : failure("Nie znaleziono elementu Todo.");
+      }),
+  );
+
+  server.registerTool(
+    "clear_completed_todos",
+    {
+      title: "Wyczyść ukończone Todo",
+      description: "Usuwa wszystkie elementy Todo oznaczone jako ukończone.",
+      inputSchema: z.object({}),
+    },
+    () =>
+      runTool(async () => {
+        const deletedCount = await deleteCompletedTodos();
+        return result({ deletedCount });
       }),
   );
 });

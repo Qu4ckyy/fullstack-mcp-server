@@ -108,3 +108,10 @@ export async function deleteTodo(id: string): Promise<boolean> {
 
   return result.deletedCount === 1;
 }
+
+export async function deleteCompletedTodos(): Promise<number> {
+  const collection = await getCollection();
+  const result = await collection.deleteMany({ completed: true });
+
+  return result.deletedCount;
+}
