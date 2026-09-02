@@ -40,7 +40,69 @@ async function runTool(
 }
 
 const handler = createMcpHandler((server) => {
-  // TODO
+  server.registerTool(
+    "list_todos",
+    {
+      title: "Lista Todo",
+      description: "Zwraca wszystkie elementy Todo.",
+      inputSchema: z.object({}),
+    },
+    () => runTool(async () => result(await listTodos())),
+  );
+
+  server.registerTool(
+    "get_todo",
+    {
+      title: "Pobierz Todo",
+      description: "Zwraca jeden element Todo na podstawie identyfikatora.",
+      inputSchema: z.object({ id: todoIdSchema }),
+    },
+    ({ id }) =>
+      runTool(async () => {
+        const todo = await getTodo(id);
+        return todo ? result(todo) : failure("Nie znaleziono elementu Todo.");
+      }),
+  );
+
+  server.registerTool(
+    "create_todo",
+    {
+      title: "Utwórz Todo",
+      description: "Tworzy nowy element Todo z podanym tytułem.",
+      inputSchema: createTodoSchema,
+    },
+    (input) => runTool(async () => result(await createTodo(input))),
+  );
+
+  server.registerTool(
+    "update_todo",
+    {
+      title: "Aktualizuj Todo",
+      description:
+        "Zmienia tytuł lub stan wykonania istniejącego elementu Todo.",
+      inputSchema: updateTodoSchema.safeExtend({ id: todoIdSchema }),
+    },
+    ({ id, ...input }) =>
+      runTool(async () => {
+        const todo = await updateTodo(id, input);
+        return todo ? result(todo) : failure("Nie znaleziono elementu Todo.");
+      }),
+  );
+
+  server.registerTool(
+    "delete_todo",
+    {
+      title: "Usuń Todo",
+      description: "Usuwa element Todo o podanym identyfikatorze.",
+      inputSchema: z.object({ id: todoIdSchema }),
+    },
+    ({ id }) =>
+      runTool(async () => {
+        return (await deleteTodo(id))
+          ? result({ deleted: true, id })
+          : failure("Nie znaleziono elementu Todo.");
+      }),
+  );
 });
 
 export { handler as GET, handler as POST };
