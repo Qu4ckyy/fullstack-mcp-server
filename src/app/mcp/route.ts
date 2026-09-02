@@ -40,14 +40,7 @@ async function runTool(
 }
 
 const handler = createMcpHandler((server) => {
-  server.registerTool(
-    "list_todos",
-    {
-      title: "Lista Todo",
-      description: "Zwraca wszystkie elementy Todo.",
-      inputSchema: z.object({}),
-    },
-    () => runTool(async () => result(await listTodos())),
+
   );
 
   server.registerTool(
